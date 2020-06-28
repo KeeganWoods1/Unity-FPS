@@ -136,7 +136,6 @@ namespace UnityStandardAssets.Characters.FirstPerson
             }
         }
 
-
         private void FixedUpdate()
         {
             GroundCheck();

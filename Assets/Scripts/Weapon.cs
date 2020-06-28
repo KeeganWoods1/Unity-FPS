@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 
 public class Weapon : MonoBehaviour
@@ -14,13 +15,12 @@ public class Weapon : MonoBehaviour
     [SerializeField] AmmoType ammoType;
     [SerializeField] float rateOfFire = 0.5f;
     [SerializeField] int damage = 1;
-
-    bool canShoot = true;
-    bool hasAmmo = true;
-
-    Animator animator;
+    [SerializeField] TextMeshProUGUI ammoText;
 
     public bool isSprinting = false;
+    bool canShoot = true;
+    bool hasAmmo = true;
+    Animator animator;
 
     private void Start()
     {
@@ -36,20 +36,8 @@ public class Weapon : MonoBehaviour
     void Update()
     {
         UpdateHasAmmo();
-
-        if (Input.GetMouseButton(0) && !isSprinting && hasAmmo && canShoot)
-        {
-            StartCoroutine(Shoot());
-        }
-
-        else
-        {
-            if (animator)
-            {
-                animator.StopPlayback();
-                animator.SetBool("isFiring", false);
-            }
-        }
+        UpdateAmmoText(ammoType);
+        HandleShootInput();
     }
 
     private void UpdateHasAmmo()
@@ -74,13 +62,43 @@ public class Weapon : MonoBehaviour
             animator.SetBool("isFiring", true);
         }
 
-        ammoSlot.DecreaseAmmo(ammoType);         
+        ammoSlot.DecreaseAmmo(ammoType);
         PlayMuzzleFlash();
-        ProcessRaycast();  
-        
+        ProcessRaycast();
+
         yield return new WaitForSeconds(rateOfFire);
 
         canShoot = true;
+    }
+
+    private void UpdateAmmoText(AmmoType ammoType)
+    {
+        if (ammoType.ToString() == "knife")
+        {
+            ammoText.text = ammoType.ToString() + ": 00";
+        }
+
+        else
+        {
+            ammoText.text = ammoType.ToString() + ": " + ammoSlot.GetCurrentAmmo(ammoType).ToString();
+        }
+    }
+
+    private void HandleShootInput()
+    {
+        if (Input.GetMouseButton(0) && !isSprinting && hasAmmo && canShoot)
+        {
+            StartCoroutine(Shoot());
+        }
+
+        else
+        {
+            if (animator)
+            {
+                animator.StopPlayback();
+                animator.SetBool("isFiring", false);
+            }
+        }
     }
 
     private void PlayMuzzleFlash()

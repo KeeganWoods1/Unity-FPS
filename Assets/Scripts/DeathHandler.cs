@@ -1,10 +1,13 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AI;
 
 public class DeathHandler : MonoBehaviour
 {
     [SerializeField] Canvas gameOverCanvas;
+    [SerializeField] GameObject enemy;
 
     private void Start()
     {
@@ -12,6 +15,18 @@ public class DeathHandler : MonoBehaviour
     }
 
     public void HandleDeath()
+    {
+        ResetEnemyDifficulty();
+        DisplayDeathMenu();
+    }
+
+    private void ResetEnemyDifficulty()
+    {
+        enemy.GetComponent<EnemyHealth>().maxHits = 100;
+        enemy.GetComponent<NavMeshAgent>().speed = 8f;
+    }
+
+    private void DisplayDeathMenu()
     {
         gameOverCanvas.enabled = true;
         Time.timeScale = 0;
