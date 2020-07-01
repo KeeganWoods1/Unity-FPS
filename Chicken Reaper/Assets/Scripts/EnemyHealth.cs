@@ -6,13 +6,20 @@ using UnityEngine;
 public class EnemyHealth : MonoBehaviour
 {
     [SerializeField] ParticleSystem deathExplosion;
+    [SerializeField] AudioClip chickenDeathSFX;
     [SerializeField] GameObject[] ammoBoxes;
-    [SerializeField] float ammoDropProbability = 0.6f;
+    [SerializeField] float ammoDropProbability = 0.1f;
     public float maxHits = 100;
 
     EnemySpawnController enemySpawnController;
+    AudioSource audioSource;
 
     bool isDead = false;
+
+    private void Start()
+    {
+        audioSource = GetComponent<AudioSource>();
+    }
 
     public void TakeDamage(int damage)
     {
@@ -30,7 +37,7 @@ public class EnemyHealth : MonoBehaviour
 
         enemySpawnController = FindObjectOfType<EnemySpawnController>();
         enemySpawnController.currentEnemyCount--;
-
+        audioSource.PlayOneShot(chickenDeathSFX);
         deathExplosion.Play();
         RandomlyDropAmmo();
         Destroy(gameObject, 0.5f);
@@ -38,7 +45,7 @@ public class EnemyHealth : MonoBehaviour
 
     private void RandomlyDropAmmo()
     {       
-        if (UnityEngine.Random.Range(0.0f, 1.0f) >= ammoDropProbability)
+        if (UnityEngine.Random.Range(0.0f, 1.0f) <= ammoDropProbability)
         {
             Instantiate(ammoBoxes[UnityEngine.Random.Range(0, ammoBoxes.Length - 1)], transform.position, Quaternion.identity);
         }

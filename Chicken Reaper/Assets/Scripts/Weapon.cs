@@ -7,24 +7,27 @@ using UnityEngine;
 public class Weapon : MonoBehaviour
 {
     [SerializeField] Camera FPCamera;
-    [SerializeField] float range = 100f;
     [SerializeField] ParticleSystem muzzleFlash;
     [SerializeField] GameObject enemyHitEffect;
     [SerializeField] GameObject hitEffect;
     [SerializeField] Ammo ammoSlot;
     [SerializeField] AmmoType ammoType;
-    [SerializeField] float rateOfFire = 0.5f;
-    [SerializeField] int damage = 1;
     [SerializeField] TextMeshProUGUI ammoText;
+    [SerializeField] AudioClip gunshotSFX;
+    [SerializeField] float rateOfFire = 0.5f;
+    [SerializeField] float range = 100f;
+    [SerializeField] int damage = 1;
 
     public bool isSprinting = false;
     bool canShoot = true;
     bool hasAmmo = true;
     Animator animator;
+    AudioSource audioSource;
 
     private void Start()
     {
         animator = gameObject.GetComponent<Animator>();
+        audioSource = GetComponent<AudioSource>();
     }
 
     private void OnEnable()
@@ -53,24 +56,6 @@ public class Weapon : MonoBehaviour
         }
     }
 
-    IEnumerator Shoot()
-    {
-        canShoot = false;
-
-        if (animator)
-        {
-            animator.SetBool("isFiring", true);
-        }
-
-        ammoSlot.DecreaseAmmo(ammoType);
-        PlayMuzzleFlash();
-        ProcessRaycast();
-
-        yield return new WaitForSeconds(rateOfFire);
-
-        canShoot = true;
-    }
-
     private void UpdateAmmoText(AmmoType ammoType)
     {
         if (ammoType.ToString() == "knife")
@@ -96,8 +81,38 @@ public class Weapon : MonoBehaviour
             if (animator)
             {
                 animator.StopPlayback();
-                animator.SetBool("isFiring", false);
+                animator.SetBool("isFiring", false);                
             }
+            if (canShoot)
+            {
+                audioSource.Stop();
+            }
+        }
+    }
+
+    IEnumerator Shoot()
+    {
+        canShoot = false;
+
+        if (animator)
+        {
+            animator.SetBool("isFiring", true);
+        }
+
+        ammoSlot.DecreaseAmmo(ammoType);
+        PlayMuzzleFlash();
+        ProcessRaycast();
+        PlayGunShotSFX();
+        yield return new WaitForSeconds(rateOfFire);
+
+        canShoot = true;
+    }
+
+    private void PlayGunShotSFX()
+    {
+        if (!audioSource.isPlaying)
+        {
+            audioSource.PlayOneShot(gunshotSFX);
         }
     }
 
